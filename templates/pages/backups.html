@@ -1,0 +1,38 @@
+{{define "title"}}Backups{{end}}
+{{define "content"}}
+<div class="page">
+  <header class="head">
+    <div>
+      <span class="kicker mono">drawer 07 · restic via backrest</span>
+      <h1>Backups</h1>
+      <p class="lede">A NAS isn't a backup. 3-2-1 means three copies, on two kinds of media, with one copy somewhere else.</p>
+    </div>
+    <a class="ext" href="http://{{.Host}}.local:9898" target="_blank" rel="noopener">Open Backrest <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <section class="panel">
+    <h2>3-2-1 check</h2>
+    <div class="table-wrap">
+    <table class="table matrix">
+      <thead><tr><th>Data</th><th>NAS</th><th>USB vault</th><th>Offsite</th><th>Cloud</th><th>Rule</th></tr></thead>
+      <tbody>
+        {{range .Coverage}}
+        <tr>
+          <td><strong>{{.Data}}</strong></td>
+          <td>{{if .Primary}}<span class="tick">●</span>{{else}}<span class="dim">○</span>{{end}}</td>
+          <td>{{if .USB}}<span class="tick">●</span>{{else}}<span class="dim">○</span>{{end}}</td>
+          <td>{{if .Offsite}}<span class="tick">●</span>{{else}}<span class="dim">○</span>{{end}}</td>
+          <td>{{if .Cloud}}<span class="tick">●</span>{{else}}<span class="dim">○</span>{{end}}</td>
+          <td>{{if .Met}}<span class="pill ok">met · {{.Copies}} copies</span>{{else}}<span class="pill warn">{{.Copies}} {{if eq .Copies 1}}copy{{else}}copies{{end}}</span>{{end}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section class="backups">
+    {{range .Backups}}{{template "backup-row" .}}{{end}}
+  </section>
+</div>
+{{end}}

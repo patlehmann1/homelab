@@ -1,0 +1,52 @@
+{{define "title"}}Photos{{end}}
+{{define "content"}}
+<div class="page">
+  <header class="head">
+    <div>
+      <span class="kicker mono">drawer 02 · immich</span>
+      <h1>Photos &amp; video</h1>
+      <p class="lede">Every phone in the house backs up here automatically. Nothing leaves the cabinet unless you share it.</p>
+    </div>
+    <a class="ext" href="http://{{.Host}}.local:2283" target="_blank" rel="noopener">Open Immich <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <section class="stats">
+    <div class="stat"><span class="label">Photos</span><span class="big">{{comma .Photos.Photos}}</span></div>
+    <div class="stat"><span class="label">Videos</span><span class="big">{{comma .Photos.Videos}}</span></div>
+    <div class="stat"><span class="label">People recognized</span><span class="big">{{.Photos.People}}</span></div>
+    <div class="stat"><span class="label">Library size</span><span class="big">{{gb .Photos.SizeGB}}</span></div>
+  </section>
+
+  <div class="memory"><span class="kicker mono">memory</span>{{.Photos.Memory}}</div>
+
+  <section class="panel">
+    <h2>Recently uploaded</h2>
+    <div class="tiles">
+      {{range .Photos.Recent}}
+      <figure class="tile" style="--h:{{.Hue}}">{{if .Video}}<span class="play">▶</span>{{end}}<figcaption class="mono">{{.Label}}</figcaption></figure>
+      {{end}}
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="panel">
+      <h2>Albums</h2>
+      <div class="albums">
+        {{range .Photos.Albums}}
+        <div class="album" style="--h:{{.Hue}}"><span class="album-art"></span><strong>{{.Name}}</strong><span class="mono dim">{{comma .Count}} items</span></div>
+        {{end}}
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Background jobs</h2>
+      {{template "jobs" .}}
+      <h2 class="spaced">Storage by person</h2>
+      <ul class="bars">
+        {{range .Users}}
+        <li><span class="who"><span class="avatar sm" style="--h:{{.Hue}}">{{.Initial}}</span>{{.Name}}</span><span class="meter"><i style="width:{{pct .PhotosGB $.Photos.SizeGB}}%"></i></span><span class="mono dim">{{gb .PhotosGB}}</span></li>
+        {{end}}
+      </ul>
+    </div>
+  </section>
+</div>
+{{end}}

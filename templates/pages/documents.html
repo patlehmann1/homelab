@@ -1,0 +1,33 @@
+{{define "title"}}Documents{{end}}
+{{define "content"}}
+<div class="page">
+  <header class="head">
+    <div>
+      <span class="kicker mono">drawer 03 · paperless-ngx</span>
+      <h1>File cabinet</h1>
+      <p class="lede">Scanned, OCR'd, tagged, and searchable. Drop a PDF into the consume folder and it files itself.</p>
+    </div>
+    <a class="ext" href="http://{{.Host}}.local:8000" target="_blank" rel="noopener">Open Paperless <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <section class="stats">
+    <div class="stat"><span class="label">Documents</span><span class="big">{{comma .DocTotal}}</span></div>
+    <div class="stat"><span class="label">Inbox</span><span class="big amber">{{.Inbox}}</span><span class="sub">need a look</span></div>
+    <div class="stat"><span class="label">Correspondents</span><span class="big">86</span></div>
+    <div class="stat"><span class="label">Archive size</span><span class="big">41 GB</span></div>
+  </section>
+
+  <div class="consume mono"><span class="led ok"></span><span>consume folder <strong>smb://{{.Host}}.local/scans</strong> · the scanner and "Save to NAS" both land here</span></div>
+
+  <section class="panel">
+    <form class="search" hx-get="/partials/doc-results" hx-target="#doc-results" hx-swap="outerHTML" hx-trigger="input delay:250ms, submit" hx-push-url="false">
+      <input type="search" name="q" value="{{.Q}}" placeholder="Search titles, correspondents, tags…" autocomplete="off" aria-label="Search documents">
+      <div class="tag-filter" role="radiogroup" aria-label="Filter by tag">
+        <label><input type="radio" name="tag" value=""{{if eq .Tag ""}} checked{{end}}><span>all</span></label>
+        {{range .Tags}}<label><input type="radio" name="tag" value="{{.}}"{{if eq . $.Tag}} checked{{end}}><span>{{.}}</span></label>{{end}}
+      </div>
+    </form>
+    {{template "doc-results" .}}
+  </section>
+</div>
+{{end}}

@@ -1,0 +1,46 @@
+{{define "layout"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{template "title" .}} · cabinet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='2' width='26' height='28' rx='3' fill='%23262a2f'/%3E%3Crect x='8' y='7' width='16' height='6' fill='%23efe6cf'/%3E%3Crect x='8' y='19' width='16' height='6' fill='%23efe6cf'/%3E%3Ccircle cx='26' cy='5' r='1.6' fill='%23ffb547'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/htmx.min.js" defer></script>
+</head>
+<body>
+<div class="shell">
+  {{template "nav" .}}
+  <main id="main">{{template "content" .}}</main>
+</div>
+</body>
+</html>{{end}}
+
+{{define "swap"}}<title>{{template "title" .}} · cabinet</title>
+{{template "content" .}}
+{{template "nav" .}}{{end}}
+
+{{define "nav"}}
+<aside id="nav" class="rail" hx-boost="true" hx-target="#main" hx-swap="innerHTML show:window:top"{{if .OOB}} hx-swap-oob="true"{{end}}>
+  <a class="brand" href="/">
+    <span class="tape">CABINET</span>
+    <span class="brand-sub mono">home lab · nas · {{.Host}}.local</span>
+  </a>
+  <nav class="drawers">
+    {{range nav}}
+    <a href="{{.Href}}" class="drawer{{if eq .Key $.Page}} open{{end}}">
+      <span class="card"><span class="num mono">{{.Num}}</span>{{.Label}}</span>
+      <span class="led {{$.LED .Key}}"></span>
+      <span class="pull"></span>
+    </a>
+    {{end}}
+  </nav>
+  <div class="rail-foot mono">
+    <span><span class="led ok"></span> up {{uptime .Uptime}}</span>
+    <span class="dim">mock data</span>
+  </div>
+</aside>
+{{end}}

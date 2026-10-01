@@ -1,0 +1,67 @@
+{{define "title"}}Overview{{end}}
+{{define "content"}}
+<div class="page">
+  <header class="head">
+    <div>
+      <span class="kicker mono">drawer 01 · {{.Host}}.local</span>
+      <h1>Overview</h1>
+      <p class="lede">{{.ServicesUp}} of {{len .Services}} services up · {{.BackupsOK}} of {{len .Backups}} backups healthy · {{len .Alerts}} notes on file</p>
+    </div>
+  </header>
+
+  {{template "vitals" .}}
+
+  <section class="grid-2">
+    <div class="panel">
+      <h2>Storage pools</h2>
+      {{range .Pools}}{{template "pool" .}}{{end}}
+    </div>
+    <div class="panel">
+      <h2>Drive bays</h2>
+      <div class="bays">{{range .Disks}}{{template "bay" .}}{{end}}</div>
+    </div>
+  </section>
+
+  <section class="apps" hx-boost="true" hx-target="#main" hx-swap="innerHTML show:window:top">
+    <a class="app" href="/photos">
+      <span class="label">Photos · Immich</span>
+      <span class="big">{{comma .Photos.Photos}}</span>
+      <span class="sub">photos, plus {{comma .Photos.Videos}} videos</span>
+    </a>
+    <a class="app" href="/documents">
+      <span class="label">Documents · Paperless</span>
+      <span class="big">{{comma .DocTotal}}</span>
+      <span class="sub">{{.Inbox}} waiting in the inbox</span>
+    </a>
+    <a class="app" href="/media">
+      <span class="label">Media · Jellyfin</span>
+      <span class="big">{{len .Media.Sessions}}</span>
+      <span class="sub">streams playing now</span>
+    </a>
+    <a class="app" href="/network">
+      <span class="label">Network · Pi-hole</span>
+      <span class="big">{{f1 .DNS.BlockedPct}}<small>%</small></span>
+      <span class="sub">{{if .DNS.Enabled}}of DNS queries blocked{{else}}blocking paused{{end}}</span>
+    </a>
+  </section>
+
+  <section class="grid-2">
+    <div class="panel">
+      <h2>Notes on file</h2>
+      <ul class="alerts">
+        {{range .Alerts}}
+        <li class="alert {{.Level}}"><span class="led {{.Level}}"></span><span>{{.Text}}</span><span class="mono dim">{{ago .At}}</span></li>
+        {{end}}
+      </ul>
+    </div>
+    <div class="panel">
+      <h2>Backups</h2>
+      <ul class="mini-backups">
+        {{range .Backups}}
+        <li><span class="led {{.Status}}"></span><span>{{.Name}}</span><span class="mono dim">{{ago .LastRun}}</span></li>
+        {{end}}
+      </ul>
+    </div>
+  </section>
+</div>
+{{end}}

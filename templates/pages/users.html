@@ -1,0 +1,32 @@
+{{define "title"}}Family{{end}}
+{{define "content"}}
+<div class="page">
+  <header class="head">
+    <div>
+      <span class="kicker mono">drawer 08 · accounts</span>
+      <h1>Family</h1>
+      <p class="lede">Who gets into which drawer. Later, single sign-on (Authelia or Authentik) can push these accounts to every app.</p>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Person</th><th>Role</th><th>Access</th><th class="num">Photos</th><th class="num">Docs</th><th></th></tr></thead>
+      <tbody id="user-rows">
+        {{range .Users}}{{template "user-row" .}}{{end}}
+      </tbody>
+    </table>
+    </div>
+
+    <form class="add-user" hx-post="/users" hx-target="#user-rows" hx-swap="beforeend" hx-on::after-request="if(event.detail.successful) this.reset()">
+      <span class="kicker mono">add someone</span>
+      <input name="name" placeholder="Name" required maxlength="24" aria-label="Name">
+      <select name="role" aria-label="Role">
+        <option>Adult</option><option>Kid</option><option>Guest</option><option>Admin</option>
+      </select>
+      <button type="submit">Add to cabinet</button>
+    </form>
+  </section>
+</div>
+{{end}}

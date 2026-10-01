@@ -1,0 +1,42 @@
+{{define "title"}}Media{{end}}
+{{define "content"}}
+<div class="page">
+  <header class="head">
+    <div>
+      <span class="kicker mono">drawer 04 · jellyfin</span>
+      <h1>Media</h1>
+      <p class="lede">Movies, shows, music, and home videos, streamed to every TV and tablet in the house.</p>
+    </div>
+    <a class="ext" href="http://{{.Host}}.local:8096" target="_blank" rel="noopener">Open Jellyfin <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <section class="panel">
+    <h2>Now playing</h2>
+    {{range .Media.Sessions}}
+    <div class="session">
+      <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+      <div><strong>{{.Title}}</strong><span class="under dim">{{.User}} · {{.Device}}</span></div>
+      <span class="pill {{if .Transcoding}}warn{{else}}ok{{end}}">{{if .Transcoding}}transcoding{{else}}direct play{{end}}</span>
+      <div class="meter"><i style="width:{{.Progress}}%"></i></div>
+    </div>
+    {{else}}
+    <div class="empty">Nobody's watching anything.</div>
+    {{end}}
+  </section>
+
+  <section class="stats">
+    {{range .Media.Libraries}}
+    <div class="stat"><span class="label">{{.Name}}</span><span class="big">{{tb .SizeTB}}</span><span class="sub">{{.Count}}</span></div>
+    {{end}}
+  </section>
+
+  <section class="panel">
+    <h2>Recently added</h2>
+    <div class="posters">
+      {{range .Media.Recent}}
+      <figure class="poster" style="--h:{{.Hue}}"><figcaption>{{.Label}}</figcaption></figure>
+      {{end}}
+    </div>
+  </section>
+</div>
+{{end}}
