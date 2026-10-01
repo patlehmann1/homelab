@@ -245,6 +245,16 @@ func (s Snapshot) ServicesUp() int {
 	return n
 }
 
+func (s Snapshot) Attention() int {
+	n := 0
+	for _, a := range s.Alerts {
+		if a.Level == "warn" || a.Level == "bad" {
+			n++
+		}
+	}
+	return n
+}
+
 func (s Snapshot) BackupsOK() int {
 	n := 0
 	for _, b := range s.Backups {
@@ -281,7 +291,7 @@ func (s *Store) Snapshot(q, tag string) Snapshot {
 	s.advance()
 
 	snap := Snapshot{
-		Host:     "cabinet",
+		Host:     "hearth",
 		Uptime:   time.Since(s.boot),
 		Vitals:   s.vitals,
 		Pools:    s.pools,

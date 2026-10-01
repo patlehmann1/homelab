@@ -1,32 +1,23 @@
 {{define "title"}}Family{{end}}
 {{define "content"}}
 <div class="page">
-  <header class="head">
-    <div>
-      <span class="kicker mono">drawer 08 · accounts</span>
-      <h1>Family</h1>
-      <p class="lede">Who gets into which drawer. Later, single sign-on (Authelia or Authentik) can push these accounts to every app.</p>
-    </div>
+  <header class="hero">
+    <p class="eyebrow">Family · accounts</p>
+    <h1>Everyone gets <em>their own space.</em></h1>
+    <p class="lede">Tap an app to turn someone's access on or off. Later, single sign-on (Authelia or Authentik) can share these accounts with every app.</p>
   </header>
 
-  <section class="panel">
-    <div class="table-wrap">
-    <table class="table">
-      <thead><tr><th>Person</th><th>Role</th><th>Access</th><th class="num">Photos</th><th class="num">Docs</th><th></th></tr></thead>
-      <tbody id="user-rows">
-        {{range .Users}}{{template "user-row" .}}{{end}}
-      </tbody>
-    </table>
-    </div>
-
-    <form class="add-user" hx-post="/users" hx-target="#user-rows" hx-swap="beforeend" hx-on::after-request="if(event.detail.successful) this.reset()">
-      <span class="kicker mono">add someone</span>
-      <input name="name" placeholder="Name" required maxlength="24" aria-label="Name">
-      <select name="role" aria-label="Role">
-        <option>Adult</option><option>Kid</option><option>Guest</option><option>Admin</option>
-      </select>
-      <button type="submit">Add to cabinet</button>
-    </form>
+  <section class="people" id="user-rows">
+    {{range .Users}}{{template "user-row" .}}{{end}}
   </section>
+
+  <form class="add-person" hx-post="/users" hx-target="#user-rows" hx-swap="beforeend" hx-on::after-request="if(event.detail.successful) this.reset()">
+    <h2>Add someone</h2>
+    <input name="name" placeholder="Their name" required maxlength="24" aria-label="Name">
+    <select name="role" aria-label="Role">
+      <option>Adult</option><option>Kid</option><option>Guest</option><option>Admin</option>
+    </select>
+    <button class="btn solid" type="submit">Add to the family</button>
+  </form>
 </div>
 {{end}}

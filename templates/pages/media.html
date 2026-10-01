@@ -1,37 +1,40 @@
 {{define "title"}}Media{{end}}
 {{define "content"}}
-<div class="page">
-  <header class="head">
-    <div>
-      <span class="kicker mono">drawer 04 · jellyfin</span>
-      <h1>Media</h1>
-      <p class="lede">Movies, shows, music, and home videos, streamed to every TV and tablet in the house.</p>
-    </div>
-    <a class="ext" href="http://{{.Host}}.local:8096" target="_blank" rel="noopener">Open Jellyfin <span aria-hidden="true">↗</span></a>
+<div class="page theme-media">
+  <header class="hero">
+    <p class="eyebrow">Media · Jellyfin</p>
+    <h1>Movie night, <em>without the subscriptions.</em></h1>
+    <p class="lede">Movies, shows, music, and home videos, ready on every TV and tablet in the house.</p>
+    <a class="btn ext" href="http://{{.Host}}.local:8096" target="_blank" rel="noopener">Open Jellyfin {{template "icon" "external"}}</a>
   </header>
 
-  <section class="panel">
-    <h2>Now playing</h2>
-    {{range .Media.Sessions}}
-    <div class="session">
-      <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
-      <div><strong>{{.Title}}</strong><span class="under dim">{{.User}} · {{.Device}}</span></div>
-      <span class="pill {{if .Transcoding}}warn{{else}}ok{{end}}">{{if .Transcoding}}transcoding{{else}}direct play{{end}}</span>
-      <div class="meter"><i style="width:{{.Progress}}%"></i></div>
+  <section class="card">
+    <div class="card-head"><h2>Playing now</h2><span class="meta">{{len .Media.Sessions}} {{if eq (len .Media.Sessions) 1}}stream{{else}}streams{{end}}</span></div>
+    <div class="sessions">
+      {{range $i, $s := .Media.Sessions}}
+      <div class="session" style="--h:{{if eq $i 0}}200{{else}}25{{end}}">
+        <span class="session-art"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span></span>
+        <div class="session-main">
+          <strong>{{.Title}}</strong>
+          <span class="meta">{{.User}} · {{.Device}}</span>
+          <div class="meter"><i style="width:{{.Progress}}%"></i></div>
+        </div>
+        <span class="pill {{if .Transcoding}}warn{{else}}ok{{end}}">{{if .Transcoding}}Converting{{else}}Direct play{{end}}</span>
+      </div>
+      {{else}}
+      <div class="empty">Nobody's watching anything right now.</div>
+      {{end}}
     </div>
-    {{else}}
-    <div class="empty">Nobody's watching anything.</div>
-    {{end}}
   </section>
 
   <section class="stats">
     {{range .Media.Libraries}}
-    <div class="stat"><span class="label">{{.Name}}</span><span class="big">{{tb .SizeTB}}</span><span class="sub">{{.Count}}</span></div>
+    <div class="stat"><span class="label">{{.Name}}</span><span class="figure">{{tb .SizeTB}}</span><span class="meta">{{.Count}}</span></div>
     {{end}}
   </section>
 
-  <section class="panel">
-    <h2>Recently added</h2>
+  <section class="card">
+    <div class="card-head"><h2>Recently added</h2></div>
     <div class="posters">
       {{range .Media.Recent}}
       <figure class="poster" style="--h:{{.Hue}}"><figcaption>{{.Label}}</figcaption></figure>

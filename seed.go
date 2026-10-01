@@ -68,8 +68,8 @@ func NewStore() *Store {
 		backups: []*Backup{
 			{ID: "snap", Name: "ZFS snapshots", Source: "tank/*", Target: "tank (local)", Kind: "local", Schedule: "hourly", SizeGB: 38, LastRun: ago(22 * time.Minute), Status: "ok"},
 			{ID: "usb-photos", Name: "Photos → USB vault", Source: "tank/photos", Target: "usb-vault 14 TB", Kind: "local", Schedule: "nightly 02:00", SizeGB: 1380, LastRun: ago(8 * h), Status: "ok"},
-			{ID: "b2-photos", Name: "Photos → Backblaze B2", Source: "tank/photos", Target: "b2://cabinet-photos", Kind: "cloud", Schedule: "nightly 03:00", SizeGB: 1380, LastRun: ago(7 * h), Status: "ok"},
-			{ID: "b2-docs", Name: "Documents → Backblaze B2", Source: "tank/documents", Target: "b2://cabinet-docs", Kind: "cloud", Schedule: "nightly 03:30", SizeGB: 41, LastRun: ago(7 * h), Status: "ok"},
+			{ID: "b2-photos", Name: "Photos → Backblaze B2", Source: "tank/photos", Target: "b2://hearth-photos", Kind: "cloud", Schedule: "nightly 03:00", SizeGB: 1380, LastRun: ago(7 * h), Status: "ok"},
+			{ID: "b2-docs", Name: "Documents → Backblaze B2", Source: "tank/documents", Target: "b2://hearth-docs", Kind: "cloud", Schedule: "nightly 03:30", SizeGB: 41, LastRun: ago(7 * h), Status: "ok"},
 			{ID: "offsite", Name: "Everything important → Mom & Dad's", Source: "photos, documents, app data", Target: "tailscale: parents-pi", Kind: "offsite", Schedule: "weekly Sun 01:00", SizeGB: 1650, LastRun: ago(8 * day), Status: "failed", Note: "host unreachable"},
 		},
 
@@ -139,7 +139,7 @@ func NewStore() *Store {
 		dns: DNS{
 			Enabled: true, Queries: 48312, Blocked: 9871, Clients: 23, Gravity: 182544, Hourly: hourly,
 			TopBlocked: []Count{{"doubleclick.net", 1822}, {"app-measurement.com", 1310}, {"graph.facebook.com", 944}, {"samsungads.com", 610}, {"device-metrics-us.amazon.com", 588}},
-			TopClients: []Count{{"living-room-tv", 9120}, {"patrick-mbp", 7710}, {"alex-iphone", 6402}, {"maya-ipad", 5288}, {"cabinet", 3011}},
+			TopClients: []Count{{"living-room-tv", 9120}, {"patrick-mbp", 7710}, {"alex-iphone", 6402}, {"maya-ipad", 5288}, {"hearth", 3011}},
 		},
 	}
 }

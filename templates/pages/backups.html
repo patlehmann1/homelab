@@ -1,33 +1,27 @@
 {{define "title"}}Backups{{end}}
 {{define "content"}}
-<div class="page">
-  <header class="head">
-    <div>
-      <span class="kicker mono">drawer 07 · restic via backrest</span>
-      <h1>Backups</h1>
-      <p class="lede">A NAS isn't a backup. 3-2-1 means three copies, on two kinds of media, with one copy somewhere else.</p>
-    </div>
-    <a class="ext" href="http://{{.Host}}.local:9898" target="_blank" rel="noopener">Open Backrest <span aria-hidden="true">↗</span></a>
+<div class="page theme-backups">
+  <header class="hero">
+    <p class="eyebrow">Backups · restic via Backrest</p>
+    <h1>If the house floods, <em>the photos don't.</em></h1>
+    <p class="lede">The 3-2-1 rule: keep three copies, on two kinds of storage, with one somewhere else.</p>
+    <a class="btn ext" href="http://{{.Host}}.local:9898" target="_blank" rel="noopener">Open Backrest {{template "icon" "external"}}</a>
   </header>
 
-  <section class="panel">
-    <h2>3-2-1 check</h2>
-    <div class="table-wrap">
-    <table class="table matrix">
-      <thead><tr><th>Data</th><th>NAS</th><th>USB vault</th><th>Offsite</th><th>Cloud</th><th>Rule</th></tr></thead>
-      <tbody>
-        {{range .Coverage}}
-        <tr>
-          <td><strong>{{.Data}}</strong></td>
-          <td>{{if .Primary}}<span class="tick">●</span>{{else}}<span class="dim">○</span>{{end}}</td>
-          <td>{{if .USB}}<span class="tick">●</span>{{else}}<span class="dim">○</span>{{end}}</td>
-          <td>{{if .Offsite}}<span class="tick">●</span>{{else}}<span class="dim">○</span>{{end}}</td>
-          <td>{{if .Cloud}}<span class="tick">●</span>{{else}}<span class="dim">○</span>{{end}}</td>
-          <td>{{if .Met}}<span class="pill ok">met · {{.Copies}} copies</span>{{else}}<span class="pill warn">{{.Copies}} {{if eq .Copies 1}}copy{{else}}copies{{end}}</span>{{end}}</td>
-        </tr>
-        {{end}}
-      </tbody>
-    </table>
+  <section class="card">
+    <div class="card-head"><h2>Where everything lives</h2></div>
+    <div class="coverage">
+      <div class="cov-row cov-head"><span></span><span>Here</span><span>USB</span><span>Offsite</span><span>Cloud</span><span></span></div>
+      {{range .Coverage}}
+      <div class="cov-row">
+        <strong>{{.Data}}</strong>
+        <span class="cell{{if .Primary}} yes{{end}}"></span>
+        <span class="cell{{if .USB}} yes{{end}}"></span>
+        <span class="cell{{if .Offsite}} yes{{end}}"></span>
+        <span class="cell{{if .Cloud}} yes{{end}}"></span>
+        {{if .Met}}<span class="pill ok">3-2-1 · {{.Copies}} copies</span>{{else}}<span class="pill warn">only {{.Copies}} {{if eq .Copies 1}}copy{{else}}copies{{end}}</span>{{end}}
+      </div>
+      {{end}}
     </div>
   </section>
 

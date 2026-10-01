@@ -1,25 +1,25 @@
 {{define "vitals"}}
-<section class="vitals panel" hx-get="/partials/vitals" hx-trigger="every 3s" hx-swap="outerHTML">
+<section id="vitals" class="vitals" hx-get="/partials/vitals" hx-trigger="every 3s" hx-swap="outerHTML">
   <div class="vital">
-    <span class="label">CPU</span>
-    <span class="big">{{f0 .Vitals.CPU}}<small>%</small></span>
-    <svg class="spark" viewBox="0 0 200 48" preserveAspectRatio="none" aria-hidden="true"><polyline points="{{spark .Vitals.CPUHistory}}"/></svg>
+    <span class="label">Processor</span>
+    <span class="figure sm">{{f0 .Vitals.CPU}}<small>%</small></span>
+    <svg class="spark" viewBox="0 0 200 48" preserveAspectRatio="none" aria-hidden="true"><polygon points="{{spark .Vitals.CPUHistory}}200,48 0,48"/><polyline points="{{spark .Vitals.CPUHistory}}"/></svg>
   </div>
   <div class="vital">
     <span class="label">Memory</span>
-    <span class="big">{{f0 .Vitals.RAM}}<small>%</small></span>
-    <div class="meter"><i style="width:{{f0 .Vitals.RAM}}%"></i></div>
-    <span class="sub mono">{{f1 .Vitals.RAMUsedGB}} / {{f0 .Vitals.RAMTotalGB}} GB</span>
+    <span class="figure sm">{{f0 .Vitals.RAM}}<small>%</small></span>
+    <div class="meter"><i id="ram-meter" style="width:{{f0 .Vitals.RAM}}%"></i></div>
+    <span class="meta">{{f1 .Vitals.RAMUsedGB}} of {{f0 .Vitals.RAMTotalGB}} GB</span>
   </div>
   <div class="vital">
-    <span class="label">CPU temp</span>
-    <span class="big{{if gt .Vitals.TempC 50}} hot{{end}}">{{.Vitals.TempC}}<small>°C</small></span>
-    <span class="sub mono">load {{f1 .Vitals.Load1}} · {{f1 .Vitals.Load5}}</span>
+    <span class="label">Temperature</span>
+    <span class="figure sm{{if gt .Vitals.TempC 50}} hot{{end}}">{{.Vitals.TempC}}<small>°C</small></span>
+    <span class="meta">{{if gt .Vitals.TempC 50}}running warm{{else}}nice and cool{{end}} · load {{f1 .Vitals.Load1}}</span>
   </div>
   <div class="vital">
     <span class="label">Network</span>
-    <span class="big">{{f1 .Vitals.NetIn}}<small>MB/s ↓</small></span>
-    <span class="sub mono">{{f1 .Vitals.NetOut}} MB/s ↑</span>
+    <span class="figure sm">{{f1 .Vitals.NetIn}}<small>MB/s</small></span>
+    <span class="meta">in now · {{f1 .Vitals.NetOut}} MB/s out</span>
   </div>
 </section>
 {{end}}
@@ -27,38 +27,35 @@
 {{define "pool"}}
 <div class="pool">
   <div class="pool-head">
-    <strong>{{.Name}}</strong>
-    <span class="mono dim">{{.Layout}}</span>
-    <span class="pill ok">{{.Health}}</span>
+    <div><strong>{{.Name}}</strong><span class="meta">{{.Layout}}</span></div>
+    <span class="pill ok">{{if eq .Health "ONLINE"}}Healthy{{else}}{{.Health}}{{end}}</span>
   </div>
-  <div class="stack">{{range .Datasets}}<i class="tone-{{.Tone}}" style="width:{{pct .UsedTB $.SizeTB}}%" title="{{.Name}}"></i>{{end}}</div>
-  <div class="pool-foot mono">
-    <span>{{tb .UsedTB}} used of {{tb .SizeTB}}</span>
-    <span>{{f0 (pct .UsedTB .SizeTB)}}%</span>
+  <div class="pool-fig">
+    <span class="figure sm">{{f0 (pct .UsedTB .SizeTB)}}<small>% full</small></span>
+    <span class="meta">{{tb .UsedTB}} of {{tb .SizeTB}}</span>
   </div>
+  <div class="stack">{{range .Datasets}}<i class="tone-{{.Tone}}" style="width:{{pct .UsedTB $.SizeTB}}%" title="{{.Name}} · {{tb .UsedTB}}"></i>{{end}}</div>
   <ul class="legend">
-    {{range .Datasets}}<li><i class="tone-{{.Tone}}"></i>{{.Name}} <span class="mono dim">{{tb .UsedTB}}</span></li>{{end}}
+    {{range .Datasets}}<li><i class="tone-{{.Tone}}"></i>{{.Name}}<span class="meta">{{tb .UsedTB}}</span></li>{{end}}
   </ul>
 </div>
 {{end}}
 
-{{define "bay"}}
-<div class="bay {{.Status}}">
-  <span class="led {{.Status}}"></span>
-  <span class="bay-id mono">{{.Bay}}</span>
-  <span class="bay-model">{{.Model}}</span>
-  <span class="bay-size mono">{{.Size}}</span>
-  <span class="bay-temp mono">{{.TempC}}°C</span>
-  {{if .Reallocated}}<span class="bay-flag mono">{{.Reallocated}} realloc</span>{{end}}
+{{define "drive"}}
+<div class="drive {{.Status}}">
+  <span class="drive-art" aria-hidden="true"><i></i></span>
+  <div class="drive-name"><strong>{{.Bay}}</strong><span class="meta">{{.Model}} · {{.Size}}</span></div>
+  <span class="drive-temp">{{.TempC}}°</span>
+  {{if .Reallocated}}<span class="drive-flag">{{.Reallocated}} reallocated sectors</span>{{end}}
 </div>
 {{end}}
 
 {{define "jobs"}}
 <div class="jobs" hx-get="/partials/jobs" hx-trigger="every 2s" hx-swap="outerHTML">
-  {{range .Jobs}}
+  {{range $i, $j := .Jobs}}
   <div class="job">
-    <div class="job-head"><span>{{.Name}}</span><span class="mono dim">{{if eq .Done .Total}}idle{{else}}{{.Done}} / {{.Total}}{{end}}</span></div>
-    <div class="meter{{if lt .Done .Total}} live{{end}}"><i style="width:{{.Pct}}%"></i></div>
+    <div class="job-head"><span>{{.Name}}</span><span class="meta">{{if eq .Done .Total}}all caught up{{else}}{{.Done}} of {{.Total}}{{end}}</span></div>
+    <div class="meter{{if lt .Done .Total}} live{{end}}"><i id="job-{{$i}}" style="width:{{.Pct}}%"></i></div>
   </div>
   {{end}}
 </div>
@@ -66,111 +63,115 @@
 
 {{define "doc-results"}}
 <div id="doc-results">
-  <p class="count mono dim">{{len .Docs}} shown{{with .Q}} matching “{{.}}”{{end}}{{with .Tag}} in #{{.}}{{end}}</p>
+  <p class="count">{{len .Docs}} {{if eq (len .Docs) 1}}document{{else}}documents{{end}}{{with .Q}} matching “{{.}}”{{end}}{{with .Tag}} tagged {{.}}{{end}}</p>
   {{if .Docs}}
-  <div class="table-wrap">
-  <table class="table">
-    <thead><tr><th>ASN</th><th>Document</th><th>Type</th><th>Tags</th><th class="num">Pages</th><th>Added</th></tr></thead>
-    <tbody>
+  <ul class="docs">
     {{range .Docs}}
-    <tr>
-      <td class="mono dim">#{{.ASN}}</td>
-      <td><strong>{{.Title}}</strong><span class="under dim">{{.Correspondent}}</span></td>
-      <td>{{.Type}}</td>
-      <td><div class="tags">{{range .Tags}}<span class="tag{{if eq . "inbox"}} inbox{{end}}">{{.}}</span>{{end}}</div></td>
-      <td class="mono num">{{.Pages}}</td>
-      <td class="mono dim">{{ago .Added}}</td>
-    </tr>
+    <li class="doc">
+      <span class="doc-art" aria-hidden="true">{{.Pages}}<small>pg</small></span>
+      <div class="doc-main">
+        <strong>{{.Title}}</strong>
+        <span class="meta">{{.Correspondent}} · {{.Type}}</span>
+      </div>
+      <div class="tags">{{range .Tags}}<span class="tag{{if eq . "inbox"}} inbox{{end}}">{{.}}</span>{{end}}</div>
+      <span class="doc-when"><span class="meta">#{{.ASN}}</span>{{ago .Added}}</span>
+    </li>
     {{end}}
-    </tbody>
-  </table>
-  </div>
+  </ul>
   {{else}}
-  <div class="empty">Nothing in the cabinet matches that. Try a correspondent, a type, or a tag.</div>
+  <div class="empty">No documents match that. Try a name, a company, or a tag.</div>
   {{end}}
 </div>
 {{end}}
 
 {{define "service-row"}}
-<tr id="svc-{{.Name}}" class="svc {{.Status}}"{{if eq .Status "restarting"}} hx-get="/services/{{.Name}}" hx-trigger="every 700ms" hx-swap="outerHTML"{{end}}>
-  <td><span class="led {{.Status}}"></span></td>
-  <td><strong class="mono">{{.Name}}</strong><span class="under mono dim">{{.Image}}</span></td>
-  <td>{{.Category}}</td>
-  <td class="mono">{{if .Port}}:{{.Port}}{{else}}<span class="dim">-</span>{{end}}</td>
-  <td class="mono num">{{if eq .Status "running"}}{{f1 .CPU}}%{{else}}<span class="dim">-</span>{{end}}</td>
-  <td class="mono num">{{if eq .Status "running"}}{{.MemMB}} MB{{else}}<span class="dim">-</span>{{end}}</td>
-  <td class="mono">{{if eq .Status "running"}}up {{ago .Started}}{{else}}{{.Status}}{{end}}</td>
-  <td class="actions" hx-target="closest tr" hx-swap="outerHTML">
+<li id="svc-{{.Name}}" class="svc {{.Status}}"{{if eq .Status "restarting"}} hx-get="/services/{{.Name}}" hx-trigger="every 700ms" hx-swap="outerHTML"{{end}}>
+  <i class="dot {{.Status}}"></i>
+  <div class="svc-name">
+    <strong>{{.Name}}</strong>
+    <span class="meta mono">{{.Image}}</span>
+  </div>
+  <span class="svc-cat">{{.Category}}</span>
+  <span class="svc-port mono">{{if .Port}}:{{.Port}}{{end}}</span>
+  <span class="svc-use mono">{{if eq .Status "running"}}{{f1 .CPU}}% · {{.MemMB}} MB{{end}}</span>
+  <span class="svc-state">{{if eq .Status "running"}}up {{ago .Started}}{{else if eq .Status "restarting"}}restarting…{{else}}stopped{{end}}</span>
+  <div class="actions" hx-target="closest li" hx-swap="outerHTML">
     {{if eq .Status "stopped"}}
-    <button hx-post="/services/{{.Name}}/start">Start</button>
+    <button class="btn" hx-post="/services/{{.Name}}/start">Start</button>
     {{else}}
-    <button hx-post="/services/{{.Name}}/restart"{{if eq .Status "restarting"}} disabled{{end}}>Restart</button>
-    <button class="ghost" hx-post="/services/{{.Name}}/stop" hx-confirm="Stop {{.Name}}?"{{if eq .Status "restarting"}} disabled{{end}}>Stop</button>
+    <button class="btn" hx-post="/services/{{.Name}}/restart"{{if eq .Status "restarting"}} disabled{{end}}>Restart</button>
+    <button class="btn quiet" hx-post="/services/{{.Name}}/stop" hx-confirm="Stop {{.Name}}?"{{if eq .Status "restarting"}} disabled{{end}}>Stop</button>
     {{end}}
-  </td>
-</tr>
+  </div>
+</li>
 {{end}}
 
 {{define "backup-row"}}
 <article id="bk-{{.ID}}" class="backup {{.Status}}"{{if eq .Status "running"}} hx-get="/backups/{{.ID}}" hx-trigger="every 500ms" hx-swap="outerHTML"{{end}}>
-  <span class="kind mono">{{.Kind}}</span>
+  <span class="kind {{.Kind}}">{{.Kind}}</span>
   <div class="bk-main">
     <h3>{{.Name}}</h3>
-    <p class="mono dim">{{.Source}} → {{.Target}}</p>
+    <p class="meta mono">{{.Source}} → {{.Target}}</p>
   </div>
-  <div class="bk-meta mono dim">{{.Schedule}}<br>{{gb .SizeGB}}</div>
+  <div class="bk-meta"><span>{{.Schedule}}</span><span class="meta">{{gb .SizeGB}}</span></div>
   <div class="bk-state">
     {{if eq .Status "running"}}
-    <div class="meter live"><i style="width:{{.Progress}}%"></i></div>
-    <span class="mono">{{.Progress}}%</span>
+    <div class="meter live"><i id="bk-prog-{{.ID}}" style="width:{{.Progress}}%"></i></div>
+    <span class="meta">backing up · {{.Progress}}%</span>
     {{else}}
-    <span class="pill {{.Status}}">{{.Status}}</span>
-    <span class="mono dim">{{ago .LastRun}}{{with .Note}} · {{.}}{{end}}</span>
+    <span class="pill {{.Status}}">{{if eq .Status "ok"}}Safe{{else}}Failed{{end}}</span>
+    <span class="meta">{{ago .LastRun}}{{with .Note}} · {{.}}{{end}}</span>
     {{end}}
   </div>
-  <button hx-post="/backups/{{.ID}}/run" hx-target="#bk-{{.ID}}" hx-swap="outerHTML"{{if eq .Status "running"}} disabled{{end}}>Run now</button>
+  <button class="btn" hx-post="/backups/{{.ID}}/run" hx-target="#bk-{{.ID}}" hx-swap="outerHTML"{{if eq .Status "running"}} disabled{{end}}>Run now</button>
 </article>
 {{end}}
 
 {{define "pihole-toggle"}}
-<div id="pihole-toggle" class="toggle-card panel {{if .DNS.Enabled}}on{{else}}off{{end}}">
-  <div>
+<div id="pihole-toggle" class="shield {{if .DNS.Enabled}}on{{else}}off{{end}}">
+  <div class="shield-art" aria-hidden="true">{{template "icon" "network"}}</div>
+  <div class="shield-copy">
     <span class="label">Ad &amp; tracker blocking</span>
-    <strong>{{if .DNS.Enabled}}Blocking on{{else}}Blocking paused{{end}}</strong>
-    <p class="dim">{{if .DNS.Enabled}}Every device on the network is filtered through Pi-hole.{{else}}DNS still resolves, but nothing is being blocked.{{end}}</p>
+    <strong>{{if .DNS.Enabled}}The whole house is protected.{{else}}Blocking is paused.{{end}}</strong>
+    <p>{{if .DNS.Enabled}}Every phone, TV, and laptop on the Wi-Fi gets filtered through Pi-hole.{{else}}Websites still load, but ads and trackers are getting through.{{end}}</p>
   </div>
-  <button class="switch" role="switch" aria-checked="{{.DNS.Enabled}}" aria-label="Toggle blocking" hx-post="/network/blocking" hx-target="#pihole-toggle" hx-swap="outerHTML"><span></span></button>
+  <button class="switch" role="switch" aria-checked="{{.DNS.Enabled}}" aria-label="Ad blocking" hx-post="/network/blocking" hx-target="#pihole-toggle" hx-swap="outerHTML"><span></span></button>
 </div>
 {{end}}
 
 {{define "dns-stats"}}
 <section class="dns" hx-get="/partials/dns-stats" hx-trigger="every 4s" hx-swap="outerHTML">
   <div class="stats">
-    <div class="stat"><span class="label">Queries today</span><span class="big">{{comma .DNS.Queries}}</span></div>
-    <div class="stat"><span class="label">Blocked</span><span class="big">{{comma .DNS.Blocked}}</span></div>
-    <div class="stat"><span class="label">Blocked share</span><span class="big amber">{{f1 .DNS.BlockedPct}}<small>%</small></span></div>
-    <div class="stat"><span class="label">Clients</span><span class="big">{{.DNS.Clients}}</span><span class="sub mono">{{comma .DNS.Gravity}} domains on blocklists</span></div>
+    <div class="stat"><span class="label">Lookups today</span><span class="figure">{{comma .DNS.Queries}}</span></div>
+    <div class="stat"><span class="label">Blocked</span><span class="figure">{{comma .DNS.Blocked}}</span></div>
+    <div class="stat accent"><span class="label">Share blocked</span><span class="figure">{{f1 .DNS.BlockedPct}}<small>%</small></span></div>
+    <div class="stat"><span class="label">Devices</span><span class="figure">{{.DNS.Clients}}</span><span class="meta">{{comma .DNS.Gravity}} domains on blocklists</span></div>
   </div>
-  <div class="panel">
-    <h2>Last 24 hours</h2>
-    <div class="hourly" role="img" aria-label="Queries and blocked queries per hour">
-      {{range .DNS.Hourly}}<div class="hour" title="{{.Q}} queries · {{.B}} blocked"><i class="q" style="height:{{barh .Q $.DNS.Hourly}}%"></i><i class="b" style="height:{{barh .B $.DNS.Hourly}}%"></i></div>{{end}}
+  <div class="card">
+    <div class="card-head"><h2>The last 24 hours</h2>
+      <ul class="legend inline"><li><i class="tone-q"></i>lookups</li><li><i class="tone-b"></i>blocked</li></ul>
     </div>
-    <div class="axis mono dim"><span>24h ago</span><span>12h</span><span>now</span></div>
-    <ul class="legend"><li><i class="tone-q"></i>queries</li><li><i class="tone-b"></i>blocked</li></ul>
+    <div class="hourly" role="img" aria-label="Lookups and blocked lookups per hour">
+      {{range .DNS.Hourly}}<div class="hour" title="{{.Q}} lookups · {{.B}} blocked"><i class="q" style="height:{{barh .Q $.DNS.Hourly}}%"></i><i class="b" style="height:{{barh .B $.DNS.Hourly}}%"></i></div>{{end}}
+    </div>
+    <div class="axis"><span>yesterday</span><span>12 hours ago</span><span>now</span></div>
   </div>
 </section>
 {{end}}
 
 {{define "user-row"}}
-<tr class="user">
-  <td><span class="who"><span class="avatar" style="--h:{{.Hue}}">{{.Initial}}</span><strong>{{.Name}}</strong></span></td>
-  <td><span class="role {{.Role}}">{{.Role}}</span></td>
-  <td class="chips">{{range .Chips}}{{template "access-chip" .}}{{end}}</td>
-  <td class="mono num">{{gb .PhotosGB}}</td>
-  <td class="mono num">{{.Docs}}</td>
-  <td class="actions"><button class="ghost danger" hx-delete="/users/{{.ID}}" hx-target="closest tr" hx-swap="outerHTML swap:300ms" hx-confirm="Remove {{.Name}}? Their files stay on the NAS.">Remove</button></td>
-</tr>
+<article class="person" style="--h:{{.Hue}}">
+  <div class="person-head">
+    <span class="avatar">{{.Initial}}</span>
+    <div><h3>{{.Name}}</h3><span class="role {{.Role}}">{{.Role}}</span></div>
+    <button class="btn quiet danger" hx-delete="/users/{{.ID}}" hx-target="closest .person" hx-swap="outerHTML swap:300ms" hx-confirm="Remove {{.Name}}? Their files stay on the server." aria-label="Remove {{.Name}}">Remove</button>
+  </div>
+  <div class="person-stats">
+    <div><span class="figure sm">{{gb .PhotosGB}}</span><span class="meta">of photos</span></div>
+    <div><span class="figure sm">{{.Docs}}</span><span class="meta">documents</span></div>
+  </div>
+  <div class="chips" aria-label="Apps {{.Name}} can use">{{range .Chips}}{{template "access-chip" .}}{{end}}</div>
+</article>
 {{end}}
 
 {{define "access-chip"}}<button class="chip{{if .On}} on{{end}}" hx-post="/users/{{.UserID}}/access/{{.App.Key}}" hx-swap="outerHTML" aria-pressed="{{.On}}">{{.App.Label}}</button>{{end}}

@@ -1,29 +1,27 @@
 {{define "title"}}Network{{end}}
 {{define "content"}}
-<div class="page">
-  <header class="head">
-    <div>
-      <span class="kicker mono">drawer 05 · pi-hole</span>
-      <h1>Network</h1>
-      <p class="lede">DNS for the whole house. Ads and trackers are blocked at the router, before they reach a device.</p>
-    </div>
-    <a class="ext" href="http://{{.Host}}.local/admin" target="_blank" rel="noopener">Open Pi-hole <span aria-hidden="true">↗</span></a>
+<div class="page theme-network">
+  <header class="hero">
+    <p class="eyebrow">Network · Pi-hole</p>
+    <h1>Fewer ads, <em>fewer trackers.</em></h1>
+    <p class="lede">The house's own DNS. Ads and trackers are blocked at the network, before they ever reach a device.</p>
+    <a class="btn ext" href="http://{{.Host}}.local/admin" target="_blank" rel="noopener">Open Pi-hole {{template "icon" "external"}}</a>
   </header>
 
   {{template "pihole-toggle" .}}
   {{template "dns-stats" .}}
 
   <section class="grid-2">
-    <div class="panel">
-      <h2>Top blocked domains</h2>
+    <div class="card">
+      <div class="card-head"><h2>Most blocked</h2></div>
       <ul class="bars">
-        {{range .DNS.TopBlocked}}<li><span class="mono">{{.Name}}</span><span class="meter"><i style="width:{{share .N $.DNS.TopBlocked}}%"></i></span><span class="mono dim">{{comma .N}}</span></li>{{end}}
+        {{range .DNS.TopBlocked}}<li><span class="mono">{{.Name}}</span><span class="meter"><i style="width:{{share .N $.DNS.TopBlocked}}%"></i></span><span class="meta">{{comma .N}}</span></li>{{end}}
       </ul>
     </div>
-    <div class="panel">
-      <h2>Busiest clients</h2>
+    <div class="card">
+      <div class="card-head"><h2>Busiest devices</h2></div>
       <ul class="bars">
-        {{range .DNS.TopClients}}<li><span class="mono">{{.Name}}</span><span class="meter"><i style="width:{{share .N $.DNS.TopClients}}%"></i></span><span class="mono dim">{{comma .N}}</span></li>{{end}}
+        {{range .DNS.TopClients}}<li><span class="mono">{{.Name}}</span><span class="meter"><i style="width:{{share .N $.DNS.TopClients}}%"></i></span><span class="meta">{{comma .N}}</span></li>{{end}}
       </ul>
     </div>
   </section>

@@ -1,65 +1,79 @@
-{{define "title"}}Overview{{end}}
+{{define "title"}}Home{{end}}
 {{define "content"}}
 <div class="page">
-  <header class="head">
-    <div>
-      <span class="kicker mono">drawer 01 · {{.Host}}.local</span>
-      <h1>Overview</h1>
-      <p class="lede">{{.ServicesUp}} of {{len .Services}} services up · {{.BackupsOK}} of {{len .Backups}} backups healthy · {{len .Alerts}} notes on file</p>
-    </div>
+  <header class="hero">
+    <p class="eyebrow">{{greeting}} · {{today}}</p>
+    {{if eq .Attention 0}}<h1>The house is <em>humming along.</em></h1>
+    {{else if eq .Attention 1}}<h1>One thing <em>could use you.</em></h1>
+    {{else if eq .Attention 2}}<h1>Two things <em>could use you.</em></h1>
+    {{else}}<h1>A few things <em>could use you.</em></h1>{{end}}
+    <p class="lede">{{.ServicesUp}} of {{len .Services}} apps running, {{.BackupsOK}} of {{len .Backups}} backups healthy, and {{comma .Photos.Photos}} photos safe at home.</p>
   </header>
 
+  {{if .Attention}}
+  <section class="notes" aria-label="Needs attention">
+    {{range .Alerts}}{{if or (eq .Level "warn") (eq .Level "bad")}}
+    <article class="note {{.Level}}">
+      <span class="note-art">{{template "icon" "alert"}}</span>
+      <p>{{.Text}}</p>
+      <span class="meta">{{ago .At}}</span>
+    </article>
+    {{end}}{{end}}
+  </section>
+  {{end}}
+
+  <section class="apps" hx-boost="true" hx-target="#main" hx-swap="innerHTML show:window:top">
+    <a class="app photos" href="/photos">
+      <span class="app-top">{{template "icon" "photos"}}<span>Photos</span>{{template "icon" "arrow"}}</span>
+      <span class="figure">{{comma .Photos.Photos}}</span>
+      <span class="sub">photos and {{comma .Photos.Videos}} videos</span>
+    </a>
+    <a class="app documents" href="/documents">
+      <span class="app-top">{{template "icon" "documents"}}<span>Documents</span>{{template "icon" "arrow"}}</span>
+      <span class="figure">{{comma .DocTotal}}</span>
+      <span class="sub">{{if .Inbox}}{{.Inbox}} new ones to sort{{else}}all filed{{end}}</span>
+    </a>
+    <a class="app media" href="/media">
+      <span class="app-top">{{template "icon" "media"}}<span>Media</span>{{template "icon" "arrow"}}</span>
+      <span class="figure">{{len .Media.Sessions}}</span>
+      <span class="sub">{{if eq (len .Media.Sessions) 1}}person{{else}}people{{end}} watching right now</span>
+    </a>
+    <a class="app network" href="/network">
+      <span class="app-top">{{template "icon" "network"}}<span>Network</span>{{template "icon" "arrow"}}</span>
+      <span class="figure">{{f1 .DNS.BlockedPct}}<small>%</small></span>
+      <span class="sub">{{if .DNS.Enabled}}of ads and trackers blocked{{else}}blocking is paused{{end}}</span>
+    </a>
+  </section>
+
+  <section class="grid-2">
+    <div class="card">
+      <div class="card-head"><h2>Storage</h2><span class="meta">{{len .Pools}} pools</span></div>
+      {{range .Pools}}{{template "pool" .}}{{end}}
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Drives</h2><span class="meta">health and temperature</span></div>
+      <div class="drives">{{range .Disks}}{{template "drive" .}}{{end}}</div>
+    </div>
+  </section>
+
+  <div class="section-head"><h2>The server, live</h2><span class="meta">refreshes every few seconds</span></div>
   {{template "vitals" .}}
 
   <section class="grid-2">
-    <div class="panel">
-      <h2>Storage pools</h2>
-      {{range .Pools}}{{template "pool" .}}{{end}}
-    </div>
-    <div class="panel">
-      <h2>Drive bays</h2>
-      <div class="bays">{{range .Disks}}{{template "bay" .}}{{end}}</div>
-    </div>
-  </section>
-
-  <section class="apps" hx-boost="true" hx-target="#main" hx-swap="innerHTML show:window:top">
-    <a class="app" href="/photos">
-      <span class="label">Photos · Immich</span>
-      <span class="big">{{comma .Photos.Photos}}</span>
-      <span class="sub">photos, plus {{comma .Photos.Videos}} videos</span>
-    </a>
-    <a class="app" href="/documents">
-      <span class="label">Documents · Paperless</span>
-      <span class="big">{{comma .DocTotal}}</span>
-      <span class="sub">{{.Inbox}} waiting in the inbox</span>
-    </a>
-    <a class="app" href="/media">
-      <span class="label">Media · Jellyfin</span>
-      <span class="big">{{len .Media.Sessions}}</span>
-      <span class="sub">streams playing now</span>
-    </a>
-    <a class="app" href="/network">
-      <span class="label">Network · Pi-hole</span>
-      <span class="big">{{f1 .DNS.BlockedPct}}<small>%</small></span>
-      <span class="sub">{{if .DNS.Enabled}}of DNS queries blocked{{else}}blocking paused{{end}}</span>
-    </a>
-  </section>
-
-  <section class="grid-2">
-    <div class="panel">
-      <h2>Notes on file</h2>
-      <ul class="alerts">
-        {{range .Alerts}}
-        <li class="alert {{.Level}}"><span class="led {{.Level}}"></span><span>{{.Text}}</span><span class="mono dim">{{ago .At}}</span></li>
+    <div class="card">
+      <div class="card-head"><h2>Backups</h2><a class="link" href="/backups" hx-boost="true" hx-target="#main" hx-swap="innerHTML show:window:top">See all {{template "icon" "arrow"}}</a></div>
+      <ul class="rows">
+        {{range .Backups}}
+        <li><i class="dot {{.Status}}"></i><span>{{.Name}}</span><span class="meta">{{ago .LastRun}}</span></li>
         {{end}}
       </ul>
     </div>
-    <div class="panel">
-      <h2>Backups</h2>
-      <ul class="mini-backups">
-        {{range .Backups}}
-        <li><span class="led {{.Status}}"></span><span>{{.Name}}</span><span class="mono dim">{{ago .LastRun}}</span></li>
-        {{end}}
+    <div class="card">
+      <div class="card-head"><h2>Lately</h2></div>
+      <ul class="rows">
+        {{range .Alerts}}{{if or (eq .Level "info") (eq .Level "ok")}}
+        <li><i class="dot {{.Level}}"></i><span>{{.Text}}</span><span class="meta">{{ago .At}}</span></li>
+        {{end}}{{end}}
       </ul>
     </div>
   </section>

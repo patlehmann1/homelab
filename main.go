@@ -17,18 +17,18 @@ import (
 var assets embed.FS
 
 type NavItem struct {
-	Key, Label, Href, Num string
+	Key, Label, Href string
 }
 
 var nav = []NavItem{
-	{"overview", "Overview", "/", "01"},
-	{"photos", "Photos", "/photos", "02"},
-	{"documents", "Documents", "/documents", "03"},
-	{"media", "Media", "/media", "04"},
-	{"network", "Network", "/network", "05"},
-	{"services", "Services", "/services", "06"},
-	{"backups", "Backups", "/backups", "07"},
-	{"users", "Family", "/users", "08"},
+	{"overview", "Home", "/"},
+	{"photos", "Photos", "/photos"},
+	{"documents", "Documents", "/documents"},
+	{"media", "Media", "/media"},
+	{"network", "Network", "/network"},
+	{"services", "Apps", "/services"},
+	{"backups", "Backups", "/backups"},
+	{"users", "Family", "/users"},
 }
 
 type view struct {
@@ -39,8 +39,8 @@ type view struct {
 	Snapshot
 }
 
-// LED picks the status light shown on each nav drawer.
-func (v view) LED(key string) string {
+// Dot picks the status dot shown on a nav tab; "ok" tabs show none.
+func (v view) Dot(key string) string {
 	switch key {
 	case "overview":
 		for _, d := range v.Disks {
@@ -67,7 +67,7 @@ func (v view) LED(key string) string {
 			return "info"
 		}
 	}
-	return "ok"
+	return ""
 }
 
 type server struct {
@@ -108,7 +108,7 @@ func main() {
 		port = "8080"
 	}
 	addr := ":" + port
-	log.Printf("cabinet dashboard on http://localhost%s", addr)
+	log.Printf("hearth dashboard on http://localhost%s", addr)
 	log.Fatal(http.ListenAndServe(addr, mux))
 }
 
@@ -217,6 +217,18 @@ func render(w http.ResponseWriter, t *template.Template, name string, data any) 
 
 var funcs = template.FuncMap{
 	"nav": func() []NavItem { return nav },
+	"greeting": func() string {
+		switch h := time.Now().Hour(); {
+		case h < 5:
+			return "Up late"
+		case h < 12:
+			return "Good morning"
+		case h < 17:
+			return "Good afternoon"
+		}
+		return "Good evening"
+	},
+	"today": func() string { return time.Now().Format("Monday, January 2") },
 	"tb": func(tb float64) string {
 		if tb < 1 {
 			return fmt.Sprintf("%.0f GB", tb*1000)
